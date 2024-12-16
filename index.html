@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>Punto de Guardado</title>
+    <style>
+       body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: black;
+            color: white;
+        }
+        h1{
+          font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+        .container {
+            text-align: center;
+            border: 5px solid #ccc;
+            padding: 50px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 500px; /* Ajusta el ancho según sea necesario */
+            background-color:;
+        }
+        #log {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-top: 10px;
+        }
+        button {
+            margin-top: 10px;
+            color: rgb(25, 0, 255);
+            background-color:dodgerblue;
+        }
+        .log-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .log-entry button {
+            margin-left: 10px;
+        }
+    </style>
+    <script type="text/javascript" src="./index.js" defer=""></script>
+    <link rel="stylesheet" href="./index.css">
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>Quieres guardar el progreso?</h1>
+      <div>
+        <label for="timestamp">Fecha y Hora:</label>
+        <input type="text" id="timestamp" readonly="">
+      </div>
+      <textarea id="progress" placeholder="Escribe tu progreso aquí..."></textarea>
+      <p>Antes de guardar, recuerda que solo puedes reescribir el progreso, no recargarlo, entonces disfruta el periodo que estás guardando</p>
+      <button onclick="saveProgress()">Guardar</button>
+      <div id="log"></div>
+    </div>
+
+    <script>
+      function updateTimestamp() {
+        const now = new Date();
+        const formattedDate = now.toLocaleString();
+        document.getElementById('timestamp').value = formattedDate;
+      }
+
+      function saveProgress() {
+        const timestamp = document.getElementById('timestamp').value;
+        const progress = document.getElementById('progress').value;
+        if (progress.trim() === "") {
+          alert("Por favor, escribe tu progreso antes de guardar.");
+          return;
+        }
+        const logEntry = {
+          timestamp,
+          progress
+        };
+        const log = getLog();
+        log.push(logEntry);
+        localStorage.setItem('log', JSON.stringify(log));
+        renderLog();
+        document.getElementById('progress').value = "";
+      }
+
+      function getLog() {
+        const log = localStorage.getItem('log');
+        return log ? JSON.parse(log) : [];
+      }
+
+      function renderLog() {
+        const log = getLog();
+        const logContainer = document.getElementById('log');
+        logContainer.innerHTML = '';
+        log.forEach((entry, index) => {
+          const logEntryDiv = document.createElement('div');
+          logEntryDiv.className = 'log-entry';
+          logEntryDiv.innerHTML = `
+                    <span>${entry.timestamp}: ${entry.progress}</span>
+                    <button onclick="deleteLogEntry(${index})">Eliminar</button>
+                `;
+          logContainer.appendChild(logEntryDiv);
+        });
+      }
+
+      function deleteLogEntry(index) {
+        const log = getLog();
+        log.splice(index, 1);
+        localStorage.setItem('log', JSON.stringify(log));
+        renderLog();
+      }
+
+      // Actualizar la fecha y hora en tiempo real
+      setInterval(updateTimestamp, 1000);
+      // Renderizar el log al cargar la página
+      renderLog();
+    </script>
+
+  </body>
+
+</html>
